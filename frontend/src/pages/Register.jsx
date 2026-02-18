@@ -16,7 +16,7 @@ export default function Register() {
     department: "",
     designation: "",
     dateOfJoining: "",
-    role: "Employee", // Default role
+    role: "Employee",
   });
 
   const handleChange = (e) => {
@@ -71,17 +71,28 @@ export default function Register() {
         role: formData.role,
       });
 
-      // Auto-login with returned token
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Redirect to dashboard
       window.location.href = "/dashboard";
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 16px",
+    background: "#18181B",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
+    fontSize: "14px",
+    color: "#FAFAFA",
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "all 0.2s"
   };
 
   return (
@@ -91,38 +102,76 @@ export default function Register() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: "20px",
+        background: "#02040A",
+        padding: "40px 20px",
+        position: "relative",
       }}
     >
+      {/* Background effects */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(ellipse at top left, rgba(0,161,199,0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(0,255,170,0.1) 0%, transparent 50%)",
+        pointerEvents: "none"
+      }} />
+
       <div
         style={{
-          background: "white",
-          borderRadius: "12px",
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+          background: "#09090B",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "24px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
           padding: "40px",
           width: "100%",
           maxWidth: "500px",
+          position: "relative",
+          zIndex: 1
         }}
       >
         {/* Header */}
         <div style={{ marginBottom: "32px", textAlign: "center" }}>
-          <h1 style={{ fontSize: "28px", fontWeight: "700", color: "#0f172a", marginBottom: "8px" }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 16,
+              background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              fontWeight: 800,
+              color: "#000",
+              marginBottom: 16,
+              boxShadow: "0 0 40px rgba(0, 161, 199, 0.4)"
+            }}
+          >
+            P
+          </div>
+          <h1 style={{ 
+            fontSize: "28px", 
+            fontWeight: "700", 
+            marginBottom: "8px",
+            background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontFamily: "'Rubik', sans-serif"
+          }}>
             Create Account
           </h1>
-          <p style={{ color: "#64748b", fontSize: "14px" }}>Join PeopleCore HR Platform</p>
+          <p style={{ color: "#52525B", fontSize: "14px" }}>Join Profitcast HR Platform</p>
         </div>
 
         {/* Error Message */}
         {error && (
           <div
             style={{
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: "8px",
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              borderRadius: "12px",
               padding: "12px 16px",
               marginBottom: "20px",
-              color: "#dc2626",
+              color: "#ef4444",
               fontSize: "13px",
             }}
           >
@@ -134,133 +183,127 @@ export default function Register() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {/* Full Name */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Full Name*
             </label>
             <input
               type="text"
               name="fullName"
+              data-testid="register-fullname"
               value={formData.fullName}
               onChange={handleChange}
               placeholder="John Doe"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
 
           {/* Employee ID */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Employee ID*
             </label>
             <input
               type="text"
               name="employeeId"
+              data-testid="register-employeeid"
               value={formData.employeeId}
               onChange={handleChange}
               placeholder="EMP001"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
 
           {/* Email */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Email*
             </label>
             <input
               type="email"
               name="email"
+              data-testid="register-email"
               value={formData.email}
               onChange={handleChange}
               placeholder="john@company.com"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
 
-          {/* Password */}
-          <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
-              Password*
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-            />
-            <p style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>Min 6 characters</p>
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
-              Confirm Password*
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-            />
+          {/* Password Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
+                Password*
+              </label>
+              <input
+                type="password"
+                name="password"
+                data-testid="register-password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Min 6 characters"
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
+                Confirm Password*
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                data-testid="register-confirm-password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm password"
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+            </div>
           </div>
 
           {/* Phone */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Phone
             </label>
             <input
@@ -269,54 +312,76 @@ export default function Register() {
               value={formData.phone}
               onChange={handleChange}
               placeholder="+1 (555) 000-0000"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
 
-          {/* Department */}
-          <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
-              Department
-            </label>
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-            >
-              <option value="">Select Department</option>
-              <option value="Creative">Creative</option>
-              <option value="Content">Content</option>
-              <option value="Performance">Performance</option>
-              <option value="Client Services">Client Services</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-            </select>
+          {/* Department & Role Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
+                Department
+              </label>
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                style={{ ...inputStyle, cursor: "pointer" }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
+              >
+                <option value="">Select Department</option>
+                <option value="Creative">Creative</option>
+                <option value="Content">Content</option>
+                <option value="Performance">Performance</option>
+                <option value="Client Services">Client Services</option>
+                <option value="HR">HR</option>
+                <option value="Finance">Finance</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
+                Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                style={{ ...inputStyle, cursor: "pointer" }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
+              >
+                <option value="Employee">Employee</option>
+                <option value="Manager">Manager</option>
+                <option value="HR">HR</option>
+                <option value="MD">MD</option>
+              </select>
+            </div>
           </div>
 
           {/* Designation */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Designation
             </label>
             <input
@@ -325,23 +390,21 @@ export default function Register() {
               value={formData.designation}
               onChange={handleChange}
               placeholder="e.g., Senior Developer"
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
 
           {/* Date of Joining */}
           <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
               Date of Joining
             </label>
             <input
@@ -349,69 +412,36 @@ export default function Register() {
               name="dateOfJoining"
               value={formData.dateOfJoining}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#00A1C7";
+                e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.boxShadow = "none";
+              }}
             />
-          </div>
-
-          {/* Role (Note: Only admins should allow MD/HR role selection) */}
-          <div>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
-              Role
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "13px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-            >
-              <option value="Employee">Employee</option>
-              <option value="Manager">Manager</option>
-              <option value="HR">HR (Requires Approval)</option>
-              <option value="MD">MD (Requires Approval)</option>
-            </select>
-            <p style={{ fontSize: "11px", color: "#94a3b8", marginTop: "4px" }}>
-              Higher roles (HR/MD) require admin approval
-            </p>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
+            data-testid="register-submit"
             disabled={loading}
             style={{
-              padding: "12px 16px",
-              background: loading ? "#cbd5e1" : "linear-gradient(135deg, #667eea, #764ba2)",
-              color: "white",
+              padding: "14px 16px",
+              background: loading ? "#18181B" : "linear-gradient(135deg, #00A1C7, #00FFAA)",
+              color: loading ? "#52525B" : "#000",
               border: "none",
-              borderRadius: "8px",
-              fontSize: "14px",
+              borderRadius: "12px",
+              fontSize: "15px",
               fontWeight: "600",
               cursor: loading ? "not-allowed" : "pointer",
               marginTop: "8px",
-              transition: "all 0.3s ease",
+              transition: "all 0.2s ease",
+              boxShadow: loading ? "none" : "0 0 30px rgba(0, 161, 199, 0.4)"
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.transform = "translateY(-2px)")}
-            onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
           >
             {loading ? "Creating Account..." : "Create Account"}
           </button>
@@ -426,19 +456,19 @@ export default function Register() {
             gap: "12px",
           }}
         >
-          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
-          <span style={{ color: "#94a3b8", fontSize: "12px" }}>or</span>
-          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
+          <div style={{ flex: 1, height: "1px", background: "rgba(255, 255, 255, 0.1)" }} />
+          <span style={{ color: "#52525B", fontSize: "12px" }}>or</span>
+          <div style={{ flex: 1, height: "1px", background: "rgba(255, 255, 255, 0.1)" }} />
         </div>
 
         {/* Login Link */}
         <div style={{ textAlign: "center" }}>
-          <p style={{ color: "#64748b", fontSize: "14px", marginBottom: "8px" }}>
+          <p style={{ color: "#A1A1AA", fontSize: "14px" }}>
             Already have an account?{" "}
             <Link
               to="/login"
               style={{
-                color: "#667eea",
+                color: "#00FFAA",
                 textDecoration: "none",
                 fontWeight: "600",
               }}
