@@ -29,24 +29,24 @@ export default function Leave() {
 
   const fetchLeaveData = async () => {
     try {
-      const requests = [
-        api.get("/leave/balance"),
-        api.get("/leave/my"),
-      ];
-
-      if (user?.role === "HR" || user?.role === "MD") {
-        requests.push(api.get("/leave?status=pending"));
-      }
-
-      const responses = await Promise.all(requests);
-      setLeaveBalance(responses[0].data);
-      setLeaveRequests(responses[1].data);
+      // Fetch balance
+      const balanceRes = await api.get("/leave/balance").catch(() => ({ data: { casual: 8, sick: 8 } }));
+      setLeaveBalance(balanceRes.data);
       
-      if (responses[2]) {
-        setPendingRequests(responses[2].data);
+      // Fetch my requests
+      const myRes = await api.get("/leave/my").catch(() => ({ data: [] }));
+      setLeaveRequests(myRes.data);
+      
+      // Fetch pending requests for HR/MD
+      if (user?.role === "HR" || user?.role === "MD") {
+        const pendingRes = await api.get("/leave?status=pending").catch(() => ({ data: [] }));
+        setPendingRequests(pendingRes.data);
       }
     } catch (err) {
       console.error("Error fetching leave data:", err);
+      // Set default values on error
+      setLeaveBalance({ casual: 8, sick: 8 });
+      setLeaveRequests([]);
     }
   };
 
