@@ -71,25 +71,16 @@ export default function Login() {
       <form onSubmit={handleLogin} className="login-form" data-testid="login-form">
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              fontWeight: 800,
-              color: "#000",
-              marginBottom: 16,
-              boxShadow: "0 0 40px rgba(0, 161, 199, 0.4)"
-            }}
-          >
-            P
-          </div>
-          <h1 style={{ marginBottom: 8 }}>Profitcast</h1>
+          <img 
+            src="/logo.png" 
+            alt="Workforce by Profitcast" 
+            style={{ 
+              height: 60, 
+              width: "auto",
+              objectFit: "contain",
+              marginBottom: 16
+            }} 
+          />
           <p style={{ color: "#52525B", fontSize: 14 }}>Sign in to your account</p>
         </div>
         

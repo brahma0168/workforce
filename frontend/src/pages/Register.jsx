@@ -130,36 +130,26 @@ export default function Register() {
       >
         {/* Header */}
         <div style={{ marginBottom: "32px", textAlign: "center" }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              fontWeight: 800,
-              color: "#000",
-              marginBottom: 16,
-              boxShadow: "0 0 40px rgba(0, 161, 199, 0.4)"
-            }}
-          >
-            P
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Workforce by Profitcast" 
+            style={{ 
+              height: 60, 
+              width: "auto",
+              objectFit: "contain",
+              marginBottom: 16
+            }} 
+          />
           <h1 style={{ 
-            fontSize: "28px", 
+            fontSize: "24px", 
             fontWeight: "700", 
             marginBottom: "8px",
-            background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            color: "#FAFAFA",
             fontFamily: "'Rubik', sans-serif"
           }}>
             Create Account
           </h1>
-          <p style={{ color: "#52525B", fontSize: "14px" }}>Join Profitcast HR Platform</p>
+          <p style={{ color: "#52525B", fontSize: "14px" }}>Join Workforce HR Platform</p>
         </div>
 
         {/* Error Message */}

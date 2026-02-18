@@ -65,42 +65,18 @@ export default function Sidebar({ pendingCount = 0 }) {
     >
       {/* Logo Section */}
       <div style={{ 
-        padding: "24px", 
-        display: "flex", 
-        alignItems: "center", 
-        gap: 12, 
+        padding: "16px 20px", 
         borderBottom: "1px solid rgba(255, 255, 255, 0.1)" 
       }}>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 18,
-            fontWeight: 800,
-            color: "#000",
-            boxShadow: "0 0 20px rgba(0, 161, 199, 0.4)"
-          }}
-        >
-          P
-        </div>
-        <div>
-          <div style={{ 
-            fontSize: 16, 
-            fontWeight: 700, 
-            background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontFamily: "'Rubik', sans-serif"
-          }}>
-            Profitcast
-          </div>
-          <div style={{ fontSize: 11, color: "#52525B", marginTop: 2 }}>HR Platform</div>
-        </div>
+        <img 
+          src="/logo.png" 
+          alt="Workforce by Profitcast" 
+          style={{ 
+            height: 48, 
+            width: "auto",
+            objectFit: "contain"
+          }} 
+        />
       </div>
 
       {/* Navigation */}
