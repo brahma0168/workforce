@@ -23,11 +23,10 @@ export default function AttendanceTrackingBox() {
   const fetchTodayAttendance = async () => {
     try {
       const res = await api.get("/attendance/today");
-      // Handle multiple sessions - get the most recent active session
       const sessions = Array.isArray(res.data) ? res.data : [res.data];
       const activeSession = sessions.find(session => 
         session.checkIn && !session.checkOut
-      ) || sessions[sessions.length - 1]; // fallback to last session
+      ) || sessions[sessions.length - 1];
       setTodayRecord(activeSession);
     } catch (err) {
       console.error("Error fetching today's attendance:", err);
@@ -54,50 +53,25 @@ export default function AttendanceTrackingBox() {
       const currentTime = new Date();
       const currentHour = currentTime.getHours();
       
-      // Check if currently on break - if so, this is resume work
       if (todayRecord?.breakStartTime && !todayRecord?.breakEndTime) {
-        const res = await api.post("/attendance/checkout");
+        await api.post("/attendance/checkout");
         showNotification(`Work resumed at ${currentTime.toLocaleTimeString()}`);
       } else if (todayRecord?.checkIn && !todayRecord?.checkOut) {
-        // Active session - determine checkout type based on time
         let checkoutType = 'FINAL';
-        let breakType = 'LUNCH';
         
-        // If checkout is in afternoon (12:00 PM - 3:00 PM), treat as lunch break
         if (currentHour >= 12 && currentHour <= 15) {
           checkoutType = 'BREAK';
-          breakType = 'LUNCH';
           showNotification(`Lunch break started at ${currentTime.toLocaleTimeString()}`);
-          
-          // Start lunch break timer for notification
-          setTimeout(async () => {
-            try {
-              // Check if user is still on break after 1 hour
-              const updatedRecord = await api.get("/attendance/today");
-              const sessions = Array.isArray(updatedRecord.data) ? updatedRecord.data : [updatedRecord.data];
-              const activeSession = sessions.find(session => 
-                session.checkIn && !session.checkOut
-              );
-              
-              if (activeSession?.breakStartTime && !activeSession?.breakEndTime) {
-                showNotification("⏰ Lunch break hour completed! Consider resuming work.", "info");
-              }
-            } catch (error) {
-              console.error("Error checking break status:", error);
-            }
-          }, 60 * 60 * 1000); // 1 hour
         } else {
-          // Final checkout
-          checkoutType = 'FINAL';
           showNotification(`Checked out at ${currentTime.toLocaleTimeString()}`);
         }
         
-        const res = await api.post("/attendance/checkout", {
+        await api.post("/attendance/checkout", {
           checkoutType,
-          breakType
+          breakType: checkoutType === 'BREAK' ? 'LUNCH' : undefined
         });
-        await fetchTodayAttendance();
       }
+      await fetchTodayAttendance();
     } catch (err) {
       alert(err.response?.data?.error || err.response?.data?.message || "Check-out failed");
     } finally {
@@ -105,21 +79,10 @@ export default function AttendanceTrackingBox() {
     }
   };
 
-  const showNotification = (msg, type = "success") => {
+  const showNotification = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(""), 3000);
   };
-
-  const formatTime = (d) =>
-    d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  
-  const formatDate = (d) =>
-    d.toLocaleDateString("en-GB", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
 
   const formatMinutes = (mins) => {
     if (mins <= 0) return '0h 0m';
@@ -128,214 +91,129 @@ export default function AttendanceTrackingBox() {
     return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
   };
 
-  // Helper states
   const checkedInToday = todayRecord?.checkIn;
   const checkedOutToday = todayRecord?.checkOut;
   const onBreak = todayRecord?.breakStartTime && !todayRecord?.breakEndTime;
   const isCurrentlyWorking = checkedInToday && !checkedOutToday && !onBreak;
 
   return (
-    <div className="card" style={{
-      background: 'white',
-      borderRadius: '12px',
-      padding: '24px',
-      marginBottom: '24px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)'
+    <div style={{
+      background: '#09090B',
+      borderRadius: '16px',
+      padding: '20px',
+      border: '1px solid rgba(255, 255, 255, 0.1)'
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-          Today's Attendance
-        </h3>
-        <span style={{ fontSize: '14px', color: '#6b7280', background: '#f3f4f6', padding: '6px 12px', borderRadius: '6px' }}>
-          {formatDate(currentTime)}
-        </span>
-      </div>
+      <h3 style={{ 
+        margin: '0 0 16px 0', 
+        fontSize: '16px', 
+        fontWeight: '600', 
+        color: '#FAFAFA',
+        fontFamily: "'Rubik', sans-serif"
+      }}>
+        Attendance Tracking
+      </h3>
 
-      {/* Progress Bar with Percentage */}
+      {/* Time Stats */}
       {todayRecord?.checkIn && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-              Daily Progress
-            </span>
-            <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
-              {(() => {
-                const totalMinutes = Math.round((todayRecord.totalWorkHours || 0) * 60) + (todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0) + Math.round((todayRecord.overtimeHours || 0) * 60);
-                const workMinutes = Math.round((todayRecord.totalWorkHours || 0) * 60);
-                return totalMinutes > 0 ? `${Math.round((workMinutes / totalMinutes) * 100)}%` : '0%';
-              })()}
-            </span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <div style={{
+            background: 'rgba(0, 255, 170, 0.1)',
+            border: '1px solid rgba(0, 255, 170, 0.2)',
+            borderRadius: '12px',
+            padding: '14px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#00FFAA', fontFamily: "'JetBrains Mono', monospace" }}>
+              {formatMinutes(Math.round((todayRecord.totalWorkHours || 0) * 60))}
+            </div>
+            <div style={{ fontSize: 11, color: '#52525B', marginTop: '4px' }}>Working</div>
           </div>
           <div style={{
-            height: '8px',
-            backgroundColor: '#f1f5f9',
-            borderRadius: '4px',
-            overflow: 'hidden',
-            position: 'relative'
+            background: 'rgba(234, 179, 8, 0.1)',
+            border: '1px solid rgba(234, 179, 8, 0.2)',
+            borderRadius: '12px',
+            padding: '14px',
+            textAlign: 'center'
           }}>
-            {/* Working Time */}
-            {todayRecord.totalWorkHours > 0 && (
-              <div style={{
-                height: '100%',
-                width: `${Math.min(100, (Math.round(todayRecord.totalWorkHours * 60) / (Math.round(todayRecord.totalWorkHours * 60) + (todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0) + Math.round((todayRecord.overtimeHours || 0) * 60))) * 100)}%`,
-                backgroundColor: '#10b981',
-                borderRadius: '4px',
-                transition: 'width 0.3s ease'
-              }} />
-            )}
-            {/* Break Time */}
-            {(todayRecord.totalBreakMinutes > 0 || todayRecord.breakMinutes > 0) && (
-              <div style={{
-                height: '100%',
-                width: `${Math.min(100, ((todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0) / (Math.round(todayRecord.totalWorkHours * 60) + (todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0) + Math.round((todayRecord.overtimeHours || 0) * 60))) * 100)}%`,
-                backgroundColor: '#fbbf24',
-                borderRadius: '4px',
-                transition: 'width 0.3s ease'
-              }} />
-            )}
-            {/* Overtime */}
-            {todayRecord.overtimeHours > 0 && (
-              <div style={{
-                height: '100%',
-                width: `${Math.min(100, (Math.round(todayRecord.overtimeHours * 60) / (Math.round(todayRecord.totalWorkHours * 60) + (todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0) + Math.round((todayRecord.overtimeHours || 0) * 60))) * 100)}%`,
-                backgroundColor: '#a78bfa',
-                borderRadius: '4px',
-                transition: 'width 0.3s ease'
-              }} />
-            )}
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#eab308', fontFamily: "'JetBrains Mono', monospace" }}>
+              {formatMinutes(todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0)}
+            </div>
+            <div style={{ fontSize: 11, color: '#52525B', marginTop: '4px' }}>Break</div>
           </div>
         </div>
       )}
 
-      {/* Three-Column Time Breakdown */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(3, 1fr)', 
-        gap: '20px', 
-        marginBottom: '24px' 
-      }}>
-        {/* Working Time */}
-        <div style={{
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a', marginBottom: '8px' }}>
-            💼
-          </div>
-          <div style={{ fontSize: '16px', fontWeight: '600', color: '#15803d', marginBottom: '4px' }}>
-            {formatMinutes(Math.round((todayRecord.totalWorkHours || 0) * 60))}
-          </div>
-          <div style={{ fontSize: '13px', color: '#6b7280' }}>
-            Working Time
-          </div>
-        </div>
-
-        {/* Break Time */}
-        <div style={{
-          background: '#fffbeb',
-          border: '1px solid #fde68a',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#d97706', marginBottom: '8px' }}>
-            🟡
-          </div>
-          <div style={{ fontSize: '16px', fontWeight: '600', color: '#92400e', marginBottom: '4px' }}>
-            {formatMinutes(todayRecord.totalBreakMinutes || todayRecord.breakMinutes || 0)}
-          </div>
-          <div style={{ fontSize: '13px', color: '#6b7280' }}>
-            Break Time
-          </div>
-        </div>
-
-        {/* Overtime */}
-        <div style={{
-          background: '#f3e8ff',
-          border: '1px solid #c7d2fe',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#6366f1', marginBottom: '8px' }}>
-            ⏱
-          </div>
-          <div style={{ fontSize: '16px', fontWeight: '600', color: '#4f46e5', marginBottom: '4px' }}>
-            {formatMinutes(Math.round((todayRecord.overtimeHours || 0) * 60))}
-          </div>
-          <div style={{ fontSize: '13px', color: '#6b7280' }}>
-            Overtime
-          </div>
-        </div>
-      </div>
-
-      {/* Centered Action Button */}
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-        <button
-          onClick={checkedOutToday ? () => showNotification("Already checked out") : 
-                 onBreak ? handleCheckOut : 
-                 isCurrentlyWorking ? handleCheckOut : 
-                 handleCheckIn}
-          disabled={checkInLoading || checkedOutToday}
-          style={{
-            padding: '16px 48px',
-            borderRadius: '10px',
-            border: 'none',
-            cursor: checkInLoading || checkedOutToday ? 'not-allowed' : 'pointer',
-            background: checkedOutToday ? '#94a3b8' : 
-                       onBreak ? '#059669' : 
-                       isCurrentlyWorking ? '#dc2626' : '#2563eb',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: '600',
-            transition: 'all 0.2s ease',
-            opacity: checkInLoading || checkedOutToday ? 0.7 : 1,
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)'
-          }}
-          onMouseOver={(e) => {
-            if (!checkInLoading && !checkedOutToday) {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1)';
-            }
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)';
-          }}
-        >
-          {checkInLoading ? "Processing..." : 
-           checkedOutToday ? "✓ Checked Out" : 
-           onBreak ? "▶ Resume Work" : 
-           isCurrentlyWorking ? "⏸ Take Break" : 
-           "▶ Check In"}
-        </button>
-        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-          Shift: Mon–Sat · 9:00 AM – 6:45 PM
-        </div>
-      </div>
+      {/* Action Button */}
+      <button
+        data-testid="attendance-action-btn"
+        onClick={checkedOutToday ? () => showNotification("Already checked out") : 
+               onBreak ? handleCheckOut : 
+               isCurrentlyWorking ? handleCheckOut : 
+               handleCheckIn}
+        disabled={checkInLoading || checkedOutToday}
+        style={{
+          width: '100%',
+          padding: '14px',
+          borderRadius: '12px',
+          border: 'none',
+          cursor: checkInLoading || checkedOutToday ? 'not-allowed' : 'pointer',
+          background: checkedOutToday ? '#18181B' : 
+                     onBreak ? 'rgba(0, 255, 170, 0.15)' : 
+                     isCurrentlyWorking ? 'rgba(255, 104, 38, 0.15)' : 
+                     'linear-gradient(135deg, #00A1C7, #00FFAA)',
+          color: checkedOutToday ? '#52525B' : 
+                 onBreak ? '#00FFAA' : 
+                 isCurrentlyWorking ? '#FF6826' : '#000',
+          fontSize: '14px',
+          fontWeight: '600',
+          transition: 'all 0.2s ease',
+          opacity: checkInLoading || checkedOutToday ? 0.7 : 1,
+          boxShadow: checkedOutToday || onBreak || isCurrentlyWorking ? 'none' : '0 0 20px rgba(0, 161, 199, 0.3)'
+        }}
+      >
+        {checkInLoading ? "Processing..." : 
+         checkedOutToday ? "✓ Day Complete" : 
+         onBreak ? "▶ Resume Work" : 
+         isCurrentlyWorking ? "⏸ Take Break / Check Out" : 
+         "▶ Check In"}
+      </button>
 
       {/* Status Info */}
       {todayRecord?.checkIn && (
         <div style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '16px',
-          textAlign: 'center'
+          background: '#18181B',
+          borderRadius: '10px',
+          padding: '12px',
+          textAlign: 'center',
+          marginTop: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.05)'
         }}>
-          <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>
-            ✓ Checked in since {new Date(todayRecord.checkIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          <div style={{ fontSize: 12, color: '#00FFAA' }}>
+            ✓ Since {new Date(todayRecord.checkIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </div>
           {onBreak && (
-            <div style={{ fontSize: '13px', color: '#f87171' }}>
-              ⏸ On Break Since {todayRecord.breakStartTime && 
-                new Date(todayRecord.breakStartTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            <div style={{ fontSize: 11, color: '#eab308', marginTop: '4px' }}>
+              ⏸ On Break
             </div>
           )}
+        </div>
+      )}
+
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          background: 'rgba(0, 255, 170, 0.1)',
+          color: '#00FFAA',
+          padding: '12px 16px',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: '500',
+          border: '1px solid rgba(0, 255, 170, 0.3)',
+          zIndex: 1000
+        }}>
+          {notification}
         </div>
       )}
     </div>
