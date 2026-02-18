@@ -1,5 +1,5 @@
 const prisma = require('../prismaClient');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const EmployeeActivityService = require('../services/employeeActivityService');
 
 // Create new employee (HR only)

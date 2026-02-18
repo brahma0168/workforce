@@ -1,5 +1,5 @@
 const prisma = require('../prismaClient');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { initializeLeaveBalance } = require('./enhancedLeaveController');
 
 // Helper function to create notification
