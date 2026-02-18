@@ -27,11 +27,10 @@ export default function Attendance() {
   const fetchTodayAttendance = async () => {
     try {
       const res = await api.get("/attendance/today");
-      // Handle multiple sessions - get the most recent active session
       const sessions = Array.isArray(res.data) ? res.data : [res.data];
       const activeSession = sessions.find(session => 
         session.checkIn && !session.checkOut
-      ) || sessions[sessions.length - 1]; // fallback to last session
+      ) || sessions[sessions.length - 1];
       setTodayRecord(activeSession);
     } catch (err) {
       console.error("Error fetching today's attendance:", err);
@@ -76,45 +75,22 @@ export default function Attendance() {
       const currentTime = new Date();
       const currentHour = currentTime.getHours();
       
-      // Check if currently on break - if so, this is resume work
       if (todayRecord?.breakStartTime && !todayRecord?.breakEndTime) {
-        const res = await api.post("/attendance/checkout");
+        await api.post("/attendance/checkout");
         showNotification(`Work resumed at ${currentTime.toLocaleTimeString()}`);
       } else if (todayRecord?.checkIn && !todayRecord?.checkOut) {
-        // Active session - determine checkout type based on time
         let checkoutType = 'FINAL';
-        let breakType = 'LUNCH';
         
-        // If checkout is in afternoon (12:00 PM - 3:00 PM), treat as lunch break
         if (currentHour >= 12 && currentHour <= 15) {
           checkoutType = 'BREAK';
-          breakType = 'LUNCH';
           showNotification(`Lunch break started at ${currentTime.toLocaleTimeString()}`);
-          
-          // Start lunch break timer for notification
-          setTimeout(async () => {
-            try {
-              // Check if user is still on break after 1 hour
-              const updatedRecord = await api.get("/attendance/today");
-              const sessions = Array.isArray(updatedRecord.data) ? updatedRecord.data : [updatedRecord.data];
-              const activeSession = sessions.find(session => 
-                session.checkIn && !session.checkOut
-              );
-              if (activeSession && activeSession.breakStartTime && !activeSession.breakEndTime) {
-                showNotification('⏰ Reminder: Please check in after your lunch break');
-              }
-            } catch (error) {
-              console.error('Error checking lunch break status:', error);
-            }
-          }, 60 * 60 * 1000); // 1 hour
         } else {
           showNotification(`Checked out at ${currentTime.toLocaleTimeString()}`);
         }
         
-        // Make API call with appropriate parameters
-        const res = await api.post("/attendance/checkout", { 
+        await api.post("/attendance/checkout", { 
           checkoutType,
-          breakType: checkoutType === 'BREAK' ? breakType : undefined
+          breakType: checkoutType === 'BREAK' ? 'LUNCH' : undefined
         });
       } else {
         showNotification('No active check-in session found');
@@ -148,44 +124,17 @@ export default function Attendance() {
     return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
   };
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
-      case "Present":
-        return "#16a34a";
-      case "Late":
-        return "#d97706";
-      case "Absent":
-        return "#dc2626";
-      default:
-        return "#64748b";
+      case "Present": return "#00FFAA";
+      case "Late": return "#FF6826";
+      case "Absent": return "#ef4444";
+      default: return "#A1A1AA";
     }
   };
 
-  const checkedInToday = !!todayRecord?.checkIn && !todayRecord?.checkOut;
-  const checkedOutToday = !!todayRecord?.checkIn && !!todayRecord?.checkOut;
-  const onBreak = todayRecord?.breakStartTime && !todayRecord?.breakEndTime;
-  const isCurrentlyWorking = checkedInToday && !onBreak;
-
   return (
-    <div style={{ maxWidth: 1400 }}>
+    <div data-testid="attendance-page" style={{ maxWidth: 1400 }}>
       {/* Notification Toast */}
       {notification && (
         <div
@@ -193,189 +142,260 @@ export default function Attendance() {
             position: "fixed",
             bottom: 24,
             right: 24,
-            background: "#10b981",
-            color: "white",
+            background: "rgba(0, 255, 170, 0.1)",
+            color: "#00FFAA",
             padding: "14px 20px",
-            borderRadius: 8,
+            borderRadius: 12,
             fontSize: 13,
             fontWeight: 600,
             zIndex: 100,
+            border: "1px solid rgba(0, 255, 170, 0.3)",
             animation: "slideIn 0.3s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: 8
           }}
         >
-          ✓ {notification}
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00FFAA" }}></span>
+          {notification}
         </div>
       )}
 
-      <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 0, marginBottom: 32 }}>
-        Attendance
-      </h1>
+      {/* Page Header */}
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ 
+          fontSize: 28, 
+          fontWeight: 700, 
+          marginBottom: 8,
+          fontFamily: "'Rubik', sans-serif",
+          background: "linear-gradient(135deg, #FAFAFA, #A1A1AA)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent"
+        }}>
+          Attendance
+        </h1>
+        <p style={{ color: "#52525B", fontSize: 14 }}>Track your daily attendance and work hours</p>
+      </div>
 
-      {/* Single Column Layout */}
-      <div style={{ display: "block" }}>
-        {/* Attendance Log Table */}
-        <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0, marginBottom: 4 }}>
+      {/* Attendance Log Table */}
+      <div style={{ 
+        background: "#09090B", 
+        borderRadius: 16, 
+        border: "1px solid rgba(255, 255, 255, 0.1)", 
+        overflow: "hidden" 
+      }}>
+        <div style={{ 
+          padding: "20px 24px", 
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <div>
+            <h2 style={{ 
+              fontSize: 16, 
+              fontWeight: 600, 
+              color: "#FAFAFA", 
+              margin: 0, 
+              marginBottom: 4,
+              fontFamily: "'Rubik', sans-serif"
+            }}>
               My Attendance Log
             </h2>
-            <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+            <p style={{ fontSize: 12, color: "#52525B", margin: 0 }}>
               {month.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
             </p>
           </div>
+        </div>
 
-          {/* Month Selector */}
-          <div
+        {/* Month Selector */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "14px 24px",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            background: "#18181B",
+          }}
+        >
+          <button
+            data-testid="prev-month-btn"
+            onClick={handlePrevMonth}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 20px",
-              borderBottom: "1px solid #f1f5f9",
-              background: "#f8fafc",
+              padding: "8px 16px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 10,
+              background: "rgba(255, 255, 255, 0.05)",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#FAFAFA",
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+              e.currentTarget.style.borderColor = "#00A1C7";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
             }}
           >
-            <button
-              onClick={handlePrevMonth}
-              style={{
-                padding: "6px 12px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 6,
-                background: "white",
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
-              ← Prev
-            </button>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
-              {month.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-            </span>
-            <button
-              onClick={handleNextMonth}
-              style={{
-                padding: "6px 12px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 6,
-                background: "white",
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
-              Next →
-            </button>
-          </div>
-
-          {loading ? (
-            <div style={{ padding: "40px 20px", textAlign: "center", color: "#94a3b8" }}>
-              Loading...
-            </div>
-          ) : records.length === 0 ? (
-            <div style={{ padding: "40px 20px", textAlign: "center", color: "#94a3b8" }}>
-              No attendance records for this month
-            </div>
-          ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  {["Date", "Check In", "Check Out", "Hours", "Status"].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "10px 16px",
-                        textAlign: "left",
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#94a3b8",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((record) => {
-                  const checkIn = record.checkIn ? new Date(record.checkIn) : null;
-                  const checkOut = record.checkOut ? new Date(record.checkOut) : null;
-                  let hours = "—";
-                  
-                  if (checkIn && checkOut) {
-                    const totalMinutes = Math.round((checkOut - checkIn) / (1000 * 60));
-                    const breakMinutes = record.totalBreakMinutes || record.breakMinutes || 0;
-                    const workedMinutes = Math.max(0, totalMinutes - breakMinutes);
-                    hours = formatMinutes(workedMinutes);
-                  }
-
-                  return (
-                    <tr
-                      key={record.id}
-                      style={{
-                        borderBottom: "1px solid #f1f5f9",
-                        transition: "background 0.1s",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "#fafbff")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      <td style={{ padding: "11px 16px" }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
-                          {new Date(record.date || record.checkIn).toLocaleDateString()}
-                        </div>
-                        <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                          {new Date(record.date || record.checkIn).toLocaleDateString("en-US", { weekday: "short" })}
-                        </div>
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: "#374151" }}>
-                        {checkIn ? checkIn.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: "#374151" }}>
-                        {checkOut ? checkOut.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "#64748b" }}>
-                        {checkIn && checkOut ? (
-                          <div>
-                            <div style={{ fontWeight: 600, color: "#10b981" }}>
-                              💼 {formatMinutes(Math.round((record.totalWorkHours || 0) * 60))}
-                            </div>
-                            {(record.totalBreakMinutes > 0 || record.breakMinutes > 0) && (
-                              <div style={{ fontSize: 11, color: "#fbbf24", marginTop: 1 }}>
-                                🟡 {formatMinutes(record.totalBreakMinutes || record.breakMinutes || 0)}
-                              </div>
-                            )}
-                            {record.overtimeHours > 0 && (
-                              <div style={{ fontSize: 11, color: "#a78bfa", marginTop: 1 }}>
-                                ⏱ {formatMinutes(Math.round(record.overtimeHours * 60))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span>—</span>
-                        )}
-                      </td>
-                      <td style={{ padding: "11px 16px" }}>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 600,
-                            padding: "2px 8px",
-                            borderRadius: 10,
-                            background: getStatusColor(record.status) + "18",
-                            color: getStatusColor(record.status),
-                          }}
-                        >
-                          {record.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+            ← Prev
+          </button>
+          <span style={{ 
+            fontSize: 14, 
+            fontWeight: 600, 
+            color: "#00A1C7",
+            fontFamily: "'JetBrains Mono', monospace"
+          }}>
+            {month.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+          </span>
+          <button
+            data-testid="next-month-btn"
+            onClick={handleNextMonth}
+            style={{
+              padding: "8px 16px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 10,
+              background: "rgba(255, 255, 255, 0.05)",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#FAFAFA",
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+              e.currentTarget.style.borderColor = "#00A1C7";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            }}
+          >
+            Next →
+          </button>
         </div>
+
+        {loading ? (
+          <div style={{ padding: "60px 20px", textAlign: "center" }}>
+            <div className="spinner"></div>
+            <p style={{ color: "#52525B", marginTop: 16 }}>Loading attendance...</p>
+          </div>
+        ) : records.length === 0 ? (
+          <div style={{ padding: "60px 20px", textAlign: "center", color: "#52525B" }}>
+            No attendance records for this month
+          </div>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#18181B" }}>
+                {["Date", "Check In", "Check Out", "Hours", "Status"].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      padding: "14px 24px",
+                      textAlign: "left",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#52525B",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.1)"
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((record) => {
+                const checkIn = record.checkIn ? new Date(record.checkIn) : null;
+                const checkOut = record.checkOut ? new Date(record.checkOut) : null;
+
+                return (
+                  <tr
+                    key={record.id}
+                    style={{
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      transition: "background 0.1s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <td style={{ padding: "16px 24px" }}>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: "#FAFAFA" }}>
+                        {new Date(record.date || record.checkIn).toLocaleDateString()}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#52525B", marginTop: 2 }}>
+                        {new Date(record.date || record.checkIn).toLocaleDateString("en-US", { weekday: "short" })}
+                      </div>
+                    </td>
+                    <td style={{ 
+                      padding: "16px 24px", 
+                      fontSize: 14, 
+                      color: "#A1A1AA",
+                      fontFamily: "'JetBrains Mono', monospace"
+                    }}>
+                      {checkIn ? checkIn.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                    </td>
+                    <td style={{ 
+                      padding: "16px 24px", 
+                      fontSize: 14, 
+                      color: "#A1A1AA",
+                      fontFamily: "'JetBrains Mono', monospace"
+                    }}>
+                      {checkOut ? checkOut.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                    </td>
+                    <td style={{ padding: "16px 24px", fontSize: 13 }}>
+                      {checkIn && checkOut ? (
+                        <div>
+                          <div style={{ fontWeight: 600, color: "#00FFAA", fontFamily: "'JetBrains Mono', monospace" }}>
+                            {formatMinutes(Math.round((record.totalWorkHours || 0) * 60))}
+                          </div>
+                          {(record.totalBreakMinutes > 0 || record.breakMinutes > 0) && (
+                            <div style={{ fontSize: 11, color: "#eab308", marginTop: 2 }}>
+                              Break: {formatMinutes(record.totalBreakMinutes || record.breakMinutes || 0)}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span style={{ color: "#52525B" }}>—</span>
+                      )}
+                    </td>
+                    <td style={{ padding: "16px 24px" }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: "6px 12px",
+                          borderRadius: 20,
+                          background: `${getStatusColor(record.status)}15`,
+                          color: getStatusColor(record.status),
+                          border: `1px solid ${getStatusColor(record.status)}40`,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        <span style={{ 
+                          width: 6, 
+                          height: 6, 
+                          borderRadius: "50%", 
+                          background: getStatusColor(record.status) 
+                        }}></span>
+                        {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <style>{`
