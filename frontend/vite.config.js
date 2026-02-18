@@ -7,6 +7,13 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
+    allowedHosts: [
+      '026fd74d-a296-452c-a108-55ad5c09b013.cluster-0.preview.emergentcf.cloud',
+      '026fd74d-a296-452c-a108-55ad5c09b013.preview.emergentagent.com',
+      '.preview.emergentagent.com',
+      '.emergentcf.cloud',
+      'localhost',
+    ],
     hmr: {
       clientPort: 443,
     },
