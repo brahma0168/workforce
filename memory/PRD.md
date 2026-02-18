@@ -1,7 +1,8 @@
-# Profitcast HR Platform - PRD
+# Workforce by Profitcast - HR Platform PRD
 
 ## Original Problem Statement
 Correct the UI according to the Profitcast Design Guide markdown and make it functional.
+Replace the logo everywhere with the "Workforce by Profitcast" branding.
 
 ## Architecture
 
@@ -16,6 +17,7 @@ Correct the UI according to the Profitcast Design Guide markdown and make it fun
 - **Brand Colors**: #00A1C7 (teal), #00FFAA (mint), #FF6826 (orange)
 - **Text Colors**: #FAFAFA (primary), #A1A1AA (secondary), #52525B (muted)
 - **Fonts**: Rubik (headings), Inter (body), JetBrains Mono (data)
+- **Logo**: Workforce by Profitcast (teal icon with white people silhouette)
 - **Effects**: Glass-morphism, glow effects, gradient buttons
 
 ## User Personas
