@@ -4,7 +4,8 @@
   "description": "Frontend application for Profitcast HRM",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "vite --host 0.0.0.0 --port 3000",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview"
   },
