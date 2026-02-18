@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState("email"); // "email", "code", "reset", "success"
+  const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -10,6 +10,19 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 16px",
+    background: "#18181B",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
+    fontSize: "14px",
+    color: "#FAFAFA",
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "all 0.2s"
+  };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +35,6 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    // In a real app, this would call backend: POST /auth/forgot-password
-    // For now, simulating the flow
     setTimeout(() => {
       setMessage("Recovery code sent to " + email);
       setStep("code");
@@ -63,7 +74,6 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    // In a real app, this would call: POST /auth/reset-password
     setTimeout(() => {
       setStep("success");
       setLoading(false);
@@ -77,29 +87,67 @@ export default function ForgotPassword() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "#02040A",
         padding: "20px",
+        position: "relative",
       }}
     >
+      {/* Background effects */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(ellipse at top left, rgba(0,161,199,0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(0,255,170,0.1) 0%, transparent 50%)",
+        pointerEvents: "none"
+      }} />
+
       <div
         style={{
-          background: "white",
-          borderRadius: "12px",
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+          background: "#09090B",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "24px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
           padding: "40px",
           width: "100%",
           maxWidth: "420px",
+          position: "relative",
+          zIndex: 1
         }}
       >
         {/* Header */}
         <div style={{ marginBottom: "32px", textAlign: "center" }}>
-          <h1 style={{ fontSize: "28px", fontWeight: "700", color: "#0f172a", marginBottom: "8px" }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 16,
+              background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              fontWeight: 800,
+              color: "#000",
+              marginBottom: 16,
+              boxShadow: "0 0 40px rgba(0, 161, 199, 0.4)"
+            }}
+          >
+            P
+          </div>
+          <h1 style={{ 
+            fontSize: "24px", 
+            fontWeight: "700", 
+            marginBottom: "8px",
+            background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontFamily: "'Rubik', sans-serif"
+          }}>
             {step === "email" && "Forgot Password?"}
             {step === "code" && "Enter Recovery Code"}
             {step === "reset" && "Create New Password"}
             {step === "success" && "Password Reset"}
           </h1>
-          <p style={{ color: "#64748b", fontSize: "14px" }}>
+          <p style={{ color: "#52525B", fontSize: "14px" }}>
             {step === "email" && "Enter your email to receive a recovery code"}
             {step === "code" && "Check your email for the 6-digit code"}
             {step === "reset" && "Enter your new password below"}
@@ -112,33 +160,36 @@ export default function ForgotPassword() {
           <div style={{ textAlign: "center" }}>
             <div
               style={{
-                width: "60px",
-                height: "60px",
-                background: "#f0fdf4",
+                width: 64,
+                height: 64,
+                background: "rgba(0, 255, 170, 0.15)",
+                border: "1px solid rgba(0, 255, 170, 0.3)",
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "28px",
+                fontSize: 28,
                 margin: "0 auto 20px",
+                color: "#00FFAA"
               }}
             >
               ✓
             </div>
-            <p style={{ color: "#16a34a", fontWeight: "600", marginBottom: "24px" }}>
+            <p style={{ color: "#00FFAA", fontWeight: "600", marginBottom: "24px" }}>
               Your password has been reset successfully!
             </p>
             <Link
               to="/login"
               style={{
                 display: "inline-block",
-                padding: "12px 24px",
-                background: "linear-gradient(135deg, #667eea, #764ba2)",
-                color: "white",
-                borderRadius: "8px",
+                padding: "14px 28px",
+                background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+                color: "#000",
+                borderRadius: "12px",
                 textDecoration: "none",
                 fontWeight: "600",
                 fontSize: "14px",
+                boxShadow: "0 0 30px rgba(0, 161, 199, 0.4)"
               }}
             >
               Back to Login
@@ -150,36 +201,32 @@ export default function ForgotPassword() {
         {step === "email" && (
           <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {error && (
-              <div
-                style={{
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  borderRadius: "8px",
-                  padding: "12px 16px",
-                  color: "#dc2626",
-                  fontSize: "13px",
-                }}
-              >
+              <div style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                color: "#ef4444",
+                fontSize: "13px",
+              }}>
                 {error}
               </div>
             )}
             {message && (
-              <div
-                style={{
-                  background: "#f0fdf4",
-                  border: "1px solid #bbf7d0",
-                  borderRadius: "8px",
-                  padding: "12px 16px",
-                  color: "#16a34a",
-                  fontSize: "13px",
-                }}
-              >
+              <div style={{
+                background: "rgba(0, 255, 170, 0.1)",
+                border: "1px solid rgba(0, 255, 170, 0.3)",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                color: "#00FFAA",
+                fontSize: "13px",
+              }}>
                 {message}
               </div>
             )}
 
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
                 Email Address
               </label>
               <input
@@ -187,17 +234,15 @@ export default function ForgotPassword() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="john@company.com"
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  outline: "none",
-                  boxSizing: "border-box",
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -205,15 +250,16 @@ export default function ForgotPassword() {
               type="submit"
               disabled={loading}
               style={{
-                padding: "12px 16px",
-                background: loading ? "#cbd5e1" : "linear-gradient(135deg, #667eea, #764ba2)",
-                color: "white",
+                padding: "14px 16px",
+                background: loading ? "#18181B" : "linear-gradient(135deg, #00A1C7, #00FFAA)",
+                color: loading ? "#52525B" : "#000",
                 border: "none",
-                borderRadius: "8px",
-                fontSize: "14px",
+                borderRadius: "12px",
+                fontSize: "15px",
                 fontWeight: "600",
                 cursor: loading ? "not-allowed" : "pointer",
                 marginTop: "8px",
+                boxShadow: loading ? "none" : "0 0 30px rgba(0, 161, 199, 0.4)"
               }}
             >
               {loading ? "Sending Code..." : "Send Recovery Code"}
@@ -225,22 +271,20 @@ export default function ForgotPassword() {
         {step === "code" && (
           <form onSubmit={handleCodeSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {error && (
-              <div
-                style={{
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  borderRadius: "8px",
-                  padding: "12px 16px",
-                  color: "#dc2626",
-                  fontSize: "13px",
-                }}
-              >
+              <div style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                color: "#ef4444",
+                fontSize: "13px",
+              }}>
                 {error}
               </div>
             )}
 
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
                 Recovery Code
               </label>
               <input
@@ -250,34 +294,37 @@ export default function ForgotPassword() {
                 placeholder="E.g., ABC123"
                 maxLength="6"
                 style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  letterSpacing: "2px",
-                  outline: "none",
-                  boxSizing: "border-box",
+                  ...inputStyle,
                   textAlign: "center",
+                  letterSpacing: "4px",
+                  fontSize: "18px",
                   fontWeight: "600",
+                  fontFamily: "'JetBrains Mono', monospace"
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
             <button
               type="submit"
               style={{
-                padding: "12px 16px",
-                background: "linear-gradient(135deg, #667eea, #764ba2)",
-                color: "white",
+                padding: "14px 16px",
+                background: "linear-gradient(135deg, #00A1C7, #00FFAA)",
+                color: "#000",
                 border: "none",
-                borderRadius: "8px",
-                fontSize: "14px",
+                borderRadius: "12px",
+                fontSize: "15px",
                 fontWeight: "600",
                 cursor: "pointer",
                 marginTop: "8px",
+                boxShadow: "0 0 30px rgba(0, 161, 199, 0.4)"
               }}
             >
               Verify Code
@@ -287,11 +334,11 @@ export default function ForgotPassword() {
               type="button"
               onClick={() => setStep("email")}
               style={{
-                padding: "12px 16px",
+                padding: "14px 16px",
                 background: "transparent",
-                color: "#667eea",
-                border: "1px solid #667eea",
-                borderRadius: "8px",
+                color: "#00A1C7",
+                border: "1px solid rgba(0, 161, 199, 0.3)",
+                borderRadius: "12px",
                 fontSize: "14px",
                 fontWeight: "600",
                 cursor: "pointer",
@@ -306,64 +353,57 @@ export default function ForgotPassword() {
         {step === "reset" && (
           <form onSubmit={handlePasswordReset} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {error && (
-              <div
-                style={{
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  borderRadius: "8px",
-                  padding: "12px 16px",
-                  color: "#dc2626",
-                  fontSize: "13px",
-                }}
-              >
+              <div style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                color: "#ef4444",
+                fontSize: "13px",
+              }}>
                 {error}
               </div>
             )}
 
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
                 New Password
               </label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  outline: "none",
-                  boxSizing: "border-box",
+                placeholder="Min 6 characters"
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
-              <p style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>Min 6 characters</p>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#0f172a", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#A1A1AA", marginBottom: "8px" }}>
                 Confirm Password
               </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  outline: "none",
-                  boxSizing: "border-box",
+                placeholder="Re-enter password"
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#00A1C7";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 161, 199, 0.1)";
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -371,15 +411,16 @@ export default function ForgotPassword() {
               type="submit"
               disabled={loading}
               style={{
-                padding: "12px 16px",
-                background: loading ? "#cbd5e1" : "linear-gradient(135deg, #667eea, #764ba2)",
-                color: "white",
+                padding: "14px 16px",
+                background: loading ? "#18181B" : "linear-gradient(135deg, #00A1C7, #00FFAA)",
+                color: loading ? "#52525B" : "#000",
                 border: "none",
-                borderRadius: "8px",
-                fontSize: "14px",
+                borderRadius: "12px",
+                fontSize: "15px",
                 fontWeight: "600",
                 cursor: loading ? "not-allowed" : "pointer",
                 marginTop: "8px",
+                boxShadow: loading ? "none" : "0 0 30px rgba(0, 161, 199, 0.4)"
               }}
             >
               {loading ? "Resetting Password..." : "Reset Password"}
@@ -389,14 +430,14 @@ export default function ForgotPassword() {
 
         {/* Footer Links */}
         {step !== "success" && (
-          <div style={{ textAlign: "center", marginTop: "24px" }}>
+          <div style={{ textAlign: "center", marginTop: "24px", paddingTop: "24px", borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
             <Link
               to="/login"
               style={{
-                color: "#667eea",
+                color: "#00FFAA",
                 textDecoration: "none",
                 fontWeight: "600",
-                fontSize: "13px",
+                fontSize: "14px",
               }}
             >
               Back to Login
