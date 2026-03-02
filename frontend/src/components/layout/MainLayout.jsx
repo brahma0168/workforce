@@ -73,12 +73,12 @@ const MainLayout = ({ children }) => {
             <img 
               src="/favicon.png" 
               alt="Workforce" 
-              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+              className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
             />
             {sidebarOpen && (
               <div className="overflow-hidden">
-                <h1 className="text-lg font-rubik font-bold text-white tracking-tight">WORKFORCE</h1>
-                <p className="text-[10px] text-text-secondary tracking-widest uppercase">BY PROFITCAST</p>
+                <h1 className="text-lg font-rubik font-black text-white tracking-wide">WORKFORCE</h1>
+                <p className="text-[10px] text-text-secondary tracking-widest">BY PROFITCAST</p>
               </div>
             )}
           </Link>
