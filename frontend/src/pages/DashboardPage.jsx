@@ -3,158 +3,121 @@ import { Link } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
 import { useAuth, api } from '../App';
 import { 
-  CheckCircle, Clock, AlertTriangle, Heart, BarChart3, 
-  ChevronRight, Calendar as CalendarIcon, Users, Briefcase,
-  ArrowUpRight, ArrowDownRight, TrendingUp, Shield
+  Users, Briefcase, CheckSquare, Shield, AlertTriangle,
+  Clock, FileText, Calendar, ArrowUpRight, TrendingUp,
+  CheckCircle, XCircle, Hourglass, UserCheck, UserX, Activity
 } from 'lucide-react';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 
-// Meta and Google Icons
-const MetaIcon = () => (
-  <div className="w-10 h-10 rounded-xl bg-meta-blue flex items-center justify-center">
-    <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/>
-    </svg>
-  </div>
-);
-
-const GoogleIcon = () => (
-  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
-    <svg className="w-5 h-5" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-    </svg>
-  </div>
-);
-
-// Status Badge Component
-const StatusBadge = ({ status }) => {
-  const styles = {
-    live: 'status-live',
-    paused: 'status-paused',
-    alert: 'status-alert',
-    good: 'status-good'
+// Quick Stat Card
+const QuickStatCard = ({ icon: Icon, value, label, trend, color = 'teal', to }) => {
+  const colorClasses = {
+    teal: 'text-brand-teal bg-brand-teal/10',
+    mint: 'text-brand-mint bg-brand-mint/10',
+    orange: 'text-brand-orange bg-brand-orange/10',
+    purple: 'text-purple-400 bg-purple-500/10',
+    red: 'text-red-400 bg-red-500/10',
+    blue: 'text-blue-400 bg-blue-500/10',
   };
-  
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${styles[status]}`}>
-      {status}
-    </span>
+
+  const content = (
+    <div className="bg-surface border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-all group">
+      <div className="flex items-start justify-between">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        {trend !== undefined && (
+          <div className={`flex items-center gap-1 text-sm ${trend >= 0 ? 'text-brand-mint' : 'text-red-400'}`}>
+            <TrendingUp className={`w-4 h-4 ${trend < 0 ? 'rotate-180' : ''}`} />
+            <span>{Math.abs(trend)}%</span>
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        <p className="font-mono text-3xl font-bold text-white">{value}</p>
+        <p className="text-sm text-text-secondary mt-1">{label}</p>
+      </div>
+      {to && (
+        <div className="mt-4 flex items-center gap-1 text-brand-teal text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+          <span>View details</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </div>
+      )}
+    </div>
   );
+
+  if (to) {
+    return <Link to={to}>{content}</Link>;
+  }
+  return content;
 };
 
-// Stat Card Component
-const StatCard = ({ icon: Icon, value, label, subLabel, status, color = 'teal', trend }) => {
+// Module Summary Card
+const ModuleSummaryCard = ({ icon: Icon, title, items, to, color = 'teal' }) => {
   const colorClasses = {
     teal: 'text-brand-teal bg-brand-teal/10 border-brand-teal/20',
     mint: 'text-brand-mint bg-brand-mint/10 border-brand-mint/20',
     orange: 'text-brand-orange bg-brand-orange/10 border-brand-orange/20',
-    red: 'text-red-500 bg-red-500/10 border-red-500/20',
+    purple: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
   };
 
   return (
     <div className="bg-surface border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-all">
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
-          <Icon className="w-6 h-6" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+          <h3 className="font-rubik font-semibold text-white">{title}</h3>
         </div>
-        {status && <StatusBadge status={status} />}
+        <Link to={to} className="text-sm text-brand-teal hover:text-brand-mint transition-colors flex items-center gap-1">
+          View All
+          <ArrowUpRight className="w-4 h-4" />
+        </Link>
       </div>
-      <div className="font-mono text-4xl font-bold text-white mb-1">{value}</div>
-      <div className="text-text-secondary text-sm mb-2">{label}</div>
-      {subLabel && (
-        <div className="flex items-center gap-3 text-xs">
-          {subLabel.map((item, i) => (
-            <span key={i} className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${item.color}`}></span>
-              <span className="text-text-muted">{item.text}</span>
-            </span>
-          ))}
-        </div>
-      )}
-      {trend && (
-        <div className={`flex items-center gap-1 text-sm mt-2 ${trend > 0 ? 'text-brand-mint' : 'text-red-400'}`}>
-          {trend > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-          <span>{Math.abs(trend)}%</span>
-        </div>
-      )}
+      <div className="space-y-3">
+        {items.map((item, index) => (
+          <div key={index} className="flex items-center justify-between p-3 bg-surface-highlight rounded-lg">
+            <div className="flex items-center gap-3">
+              {item.icon && <item.icon className={`w-4 h-4 ${item.iconColor || 'text-text-muted'}`} />}
+              <span className="text-sm text-text-secondary">{item.label}</span>
+            </div>
+            <span className={`font-mono text-lg font-bold ${item.valueColor || 'text-white'}`}>{item.value}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-// Platform Card Component
-const PlatformCard = ({ icon, name, totalAccounts, stats, onViewPerformance }) => (
-  <div className="bg-surface border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-all">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-3">
-        {icon}
-        <div>
-          <h3 className="font-rubik font-semibold text-white">{name}</h3>
-          <p className="text-sm text-text-secondary">{totalAccounts} total accounts</p>
-        </div>
-      </div>
-      <ChevronRight className="w-5 h-5 text-text-muted" />
-    </div>
-    
-    <div className="grid grid-cols-3 gap-3">
-      {stats.map((stat, i) => (
-        <div key={i} className={`rounded-xl p-4 text-center ${stat.bgClass}`}>
-          <div className={`font-mono text-2xl font-bold ${stat.textClass}`}>{stat.value}</div>
-          <div className="text-xs text-text-muted uppercase tracking-wider mt-1">{stat.label}</div>
-        </div>
-      ))}
-    </div>
-    
-    <div className="flex gap-2 mt-4">
-      <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 rounded-lg text-sm text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
-        <BarChart3 className="w-4 h-4" />
-        View detailed performance
-      </button>
-      <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 rounded-lg text-sm text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
-        <TrendingUp className="w-4 h-4" />
-        Campaign analytics
-      </button>
-    </div>
-  </div>
-);
+// Activity Item
+const ActivityItem = ({ icon: Icon, title, description, time, color = 'teal' }) => {
+  const colorClasses = {
+    teal: 'text-brand-teal bg-brand-teal/10',
+    mint: 'text-brand-mint bg-brand-mint/10',
+    orange: 'text-brand-orange bg-brand-orange/10',
+    red: 'text-red-400 bg-red-500/10',
+  };
 
-// Account Alert Card
-const AccountAlertCard = ({ name, campaigns, percentage, platform }) => (
-  <div className="flex items-center justify-between p-4 bg-surface-highlight rounded-xl">
-    <div className="flex items-center gap-3">
-      {platform === 'meta' ? (
-        <div className="w-8 h-8 rounded-lg bg-meta-blue/20 flex items-center justify-center">
-          <svg className="w-4 h-4 text-meta-blue" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/>
-          </svg>
-        </div>
-      ) : (
-        <div className="w-8 h-8 rounded-lg bg-google-blue/20 flex items-center justify-center">
-          <span className="text-google-blue font-bold text-sm">G</span>
-        </div>
-      )}
-      <div>
-        <p className="text-sm font-medium text-white">{name}</p>
-        <p className="text-xs text-text-muted">{campaigns} campaigns</p>
+  return (
+    <div className="flex items-start gap-4 p-4 hover:bg-white/[0.02] rounded-lg transition-colors">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses[color]}`}>
+        <Icon className="w-5 h-5" />
       </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white">{title}</p>
+        <p className="text-sm text-text-secondary truncate">{description}</p>
+      </div>
+      <span className="text-xs text-text-muted whitespace-nowrap">{time}</span>
     </div>
-    <div className="flex items-center gap-2">
-      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-        percentage >= 50 ? 'bg-brand-mint/10 text-brand-mint' : 'bg-brand-orange/10 text-brand-orange'
-      }`}>
-        {percentage}%
-      </span>
-    </div>
-  </div>
-);
+  );
+};
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
-  const [dateRange, setDateRange] = useState('7');
+  const [overview, setOverview] = useState({});
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -163,7 +126,8 @@ const DashboardPage = () => {
           api.get('/dashboard/overview'),
           api.get('/dashboard/stats')
         ]);
-        setStats({ ...overviewRes.data, ...statsRes.data });
+        setOverview(overviewRes.data);
+        setStats(statsRes.data);
       } catch (error) {
         console.error('Error fetching dashboard:', error);
       } finally {
@@ -173,8 +137,17 @@ const DashboardPage = () => {
     fetchDashboard();
   }, []);
 
-  const today = new Date();
-  const startDate = subDays(today, parseInt(dateRange));
+  const today = format(new Date(), 'EEEE, MMMM d, yyyy');
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="w-10 h-10 border-2 border-brand-teal border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -182,178 +155,224 @@ const DashboardPage = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-rubik font-bold text-white flex items-center gap-3">
-              <BarChart3 className="w-7 h-7 text-brand-teal" />
-              Account Health Dashboard
+            <h1 className="text-2xl font-rubik font-bold text-white">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {user?.first_name}!
             </h1>
-            <p className="text-text-secondary mt-1">Monitor account status across all platforms</p>
+            <p className="text-text-secondary mt-1">{today}</p>
           </div>
-          
-          <div className="flex items-center gap-2 bg-surface border border-white/10 rounded-xl px-4 py-2">
-            <CalendarIcon className="w-4 h-4 text-text-muted" />
-            <span className="text-sm text-white">Last {dateRange} Days</span>
-            <span className="text-xs text-text-muted">
-              ({format(startDate, 'MMM d')} - {format(today, 'MMM d')})
-            </span>
-            <ChevronRight className="w-4 h-4 text-text-muted rotate-90" />
+          <div className="flex items-center gap-2 px-4 py-2 bg-surface border border-white/10 rounded-xl">
+            <Activity className="w-4 h-4 text-brand-mint" />
+            <span className="text-sm text-text-secondary">System Status:</span>
+            <span className="text-sm text-brand-mint font-medium">Operational</span>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-testid="stats-grid">
-          <StatCard
-            icon={CheckCircle}
-            value={stats.employees || 64}
-            label="Total Active Accounts"
-            status="live"
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" data-testid="stats-grid">
+          <QuickStatCard
+            icon={Users}
+            value={stats.employees || 0}
+            label="Team Members"
             color="teal"
-            subLabel={[
-              { text: '46 Meta', color: 'bg-meta-blue' },
-              { text: '18 Google', color: 'bg-google-blue' }
-            ]}
+            to="/employees"
           />
-          <StatCard
-            icon={Clock}
-            value={5}
-            label="Recently Inactive"
-            status="paused"
-            color="orange"
-            subLabel={[
-              { text: '3 Meta', color: 'bg-meta-blue' },
-              { text: '2 Google', color: 'bg-google-blue' }
-            ]}
-          />
-          <StatCard
-            icon={AlertTriangle}
-            value={stats.issues_open || 2}
-            label="Need Attention"
-            status="alert"
-            color="red"
-            subLabel={[
-              { text: '2 Meta', color: 'bg-meta-blue' },
-              { text: '0 Google', color: 'bg-google-blue' }
-            ]}
-          />
-          <StatCard
-            icon={Heart}
-            value={4}
-            label="Healthy Accounts"
-            status="good"
+          <QuickStatCard
+            icon={Briefcase}
+            value={stats.projects || 0}
+            label="Active Projects"
             color="mint"
-            subLabel={[
-              { text: '4 Meta', color: 'bg-meta-blue' },
-              { text: '0 Google', color: 'bg-google-blue' }
+            to="/projects"
+          />
+          <QuickStatCard
+            icon={CheckSquare}
+            value={stats.tasks_pending || 0}
+            label="Pending Tasks"
+            color="orange"
+            to="/tasks"
+          />
+          <QuickStatCard
+            icon={AlertTriangle}
+            value={stats.issues_open || 0}
+            label="Open Issues"
+            color="red"
+            to="/issues"
+          />
+          <QuickStatCard
+            icon={Shield}
+            value={stats.vault_folders || 0}
+            label="Vault Folders"
+            color="purple"
+            to="/vault"
+          />
+          <QuickStatCard
+            icon={Clock}
+            value={overview.attendance_this_month || 0}
+            label="Days Present"
+            color="blue"
+            to="/attendance"
+          />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* HRM Summary */}
+          <ModuleSummaryCard
+            icon={Users}
+            title="Team Overview"
+            color="teal"
+            to="/employees"
+            items={[
+              { label: 'Active Employees', value: stats.employees || 0, icon: UserCheck, iconColor: 'text-brand-mint' },
+              { label: 'Pending Leave Requests', value: overview.pending_leave_approvals || 0, icon: FileText, iconColor: 'text-yellow-400' },
+              { label: 'Open Escalations', value: overview.escalation_backlog || 0, icon: AlertTriangle, iconColor: 'text-brand-orange' },
+            ]}
+          />
+
+          {/* PMS Summary */}
+          <ModuleSummaryCard
+            icon={Briefcase}
+            title="Project Status"
+            color="mint"
+            to="/projects"
+            items={[
+              { label: 'Active Projects', value: stats.projects || 0, icon: Briefcase, iconColor: 'text-brand-teal' },
+              { label: 'Tasks In Progress', value: overview.team_tasks?.active || stats.tasks_pending || 0, icon: Hourglass, iconColor: 'text-brand-mint' },
+              { label: 'Overdue Tasks', value: overview.team_tasks?.overdue || 0, icon: XCircle, iconColor: 'text-red-400' },
+            ]}
+          />
+
+          {/* Issues & Vault Summary */}
+          <ModuleSummaryCard
+            icon={Shield}
+            title="Security & Issues"
+            color="purple"
+            to="/vault"
+            items={[
+              { label: 'Vault Folders', value: stats.vault_folders || 0, icon: Shield, iconColor: 'text-purple-400' },
+              { label: 'Open Issues', value: stats.issues_open || 0, icon: AlertTriangle, iconColor: 'text-red-400' },
+              { label: 'Automation Rules', value: stats.automation_rules || 0, icon: Activity, iconColor: 'text-blue-400' },
             ]}
           />
         </div>
 
-        {/* Platform Cards */}
+        {/* My Tasks & Leave Balance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <PlatformCard
-            icon={<MetaIcon />}
-            name="Meta Ads"
-            totalAccounts={67}
-            stats={[
-              { value: 46, label: 'Active', bgClass: 'bg-brand-teal/10', textClass: 'text-brand-teal' },
-              { value: 3, label: 'Inactive', bgClass: 'bg-yellow-500/10', textClass: 'text-yellow-400' },
-              { value: 2, label: 'Attention', bgClass: 'bg-red-500/10', textClass: 'text-red-400' },
-            ]}
-          />
-          <PlatformCard
-            icon={<GoogleIcon />}
-            name="Google Ads"
-            totalAccounts={20}
-            stats={[
-              { value: 18, label: 'Active', bgClass: 'bg-brand-teal/10', textClass: 'text-brand-teal' },
-              { value: 2, label: 'Inactive', bgClass: 'bg-yellow-500/10', textClass: 'text-yellow-400' },
-              { value: 0, label: 'Attention', bgClass: 'bg-red-500/10', textClass: 'text-red-400' },
-            ]}
-          />
+          {/* My Tasks Summary */}
+          <div className="bg-surface border border-white/5 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-rubik font-semibold text-white flex items-center gap-2">
+                <CheckSquare className="w-5 h-5 text-brand-teal" />
+                My Tasks
+              </h3>
+              <Link to="/tasks" className="text-sm text-brand-teal hover:text-brand-mint transition-colors">
+                View All
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-surface-highlight rounded-xl text-center">
+                <p className="font-mono text-3xl font-bold text-white">{overview.my_tasks?.total || 0}</p>
+                <p className="text-sm text-text-secondary mt-1">Total Assigned</p>
+              </div>
+              <div className="p-4 bg-surface-highlight rounded-xl text-center">
+                <p className="font-mono text-3xl font-bold text-brand-mint">{overview.my_tasks?.completed || 0}</p>
+                <p className="text-sm text-text-secondary mt-1">Completed</p>
+              </div>
+            </div>
+            
+            {overview.my_tasks?.total > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-text-secondary">Completion Rate</span>
+                  <span className="text-brand-teal font-mono">
+                    {Math.round((overview.my_tasks?.completed / overview.my_tasks?.total) * 100 || 0)}%
+                  </span>
+                </div>
+                <div className="h-2 bg-surface-highlight rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-brand-teal to-brand-mint transition-all duration-500"
+                    style={{ width: `${(overview.my_tasks?.completed / overview.my_tasks?.total) * 100 || 0}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Leave Balance */}
+          {overview.leave_balance && (
+            <div className="bg-surface border border-white/5 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-rubik font-semibold text-white flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-brand-teal" />
+                  Leave Balance ({new Date().getFullYear()})
+                </h3>
+                <Link to="/leaves" className="text-sm text-brand-teal hover:text-brand-mint transition-colors">
+                  Request Leave
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3">
+                {Object.entries(overview.leave_balance.balances || {}).slice(0, 6).map(([type, days]) => (
+                  <div key={type} className="p-3 bg-surface-highlight rounded-lg text-center">
+                    <p className="font-mono text-xl font-bold text-white">{days}</p>
+                    <p className="text-xs text-text-muted capitalize mt-1">{type.replace('_', ' ')}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Accounts Needing Attention */}
+        {/* Recent Activity */}
         <div className="bg-surface border border-white/5 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-yellow-400" />
-              <h2 className="text-lg font-rubik font-semibold text-white">Accounts Needing Attention</h2>
-            </div>
-            <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-sm font-medium">
-              2 accounts
-            </span>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-rubik font-semibold text-white flex items-center gap-2">
+              <Activity className="w-5 h-5 text-brand-teal" />
+              Recent Notifications
+            </h3>
+            <Link to="/notifications" className="text-sm text-brand-teal hover:text-brand-mint transition-colors">
+              View All
+            </Link>
           </div>
           
-          {/* Filter Tabs */}
-          <div className="flex gap-2 mb-4">
-            <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm font-medium">
-              All (2)
-            </button>
-            <button className="px-4 py-2 bg-transparent text-text-secondary hover:bg-white/5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-meta-blue flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">f</span>
+          <div className="divide-y divide-white/5">
+            {(overview.recent_notifications || []).length > 0 ? (
+              overview.recent_notifications.map((notif, index) => (
+                <ActivityItem
+                  key={notif.id || index}
+                  icon={notif.type === 'hrm' ? Users : notif.type === 'pms' ? Briefcase : notif.type === 'vault' ? Shield : AlertTriangle}
+                  title={notif.title}
+                  description={notif.message}
+                  time="Recently"
+                  color={notif.type === 'hrm' ? 'teal' : notif.type === 'pms' ? 'mint' : notif.type === 'vault' ? 'orange' : 'red'}
+                />
+              ))
+            ) : (
+              <div className="py-8 text-center text-text-secondary">
+                <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>No new notifications</p>
               </div>
-              Meta (2)
-            </button>
-            <button className="px-4 py-2 bg-transparent text-text-secondary hover:bg-white/5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-              <span className="text-google-blue font-bold">G</span>
-              Google (0)
-            </button>
-          </div>
-          
-          {/* Account List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <AccountAlertCard 
-              name="Motofence Bengaluru" 
-              campaigns={1} 
-              percentage={50} 
-              platform="meta"
-            />
-            <AccountAlertCard 
-              name="Aavaranaa Chennai" 
-              campaigns={1} 
-              percentage={55} 
-              platform="meta"
-            />
+            )}
           </div>
         </div>
 
-        {/* Quick Stats Row */}
+        {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link to="/projects" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all group">
-            <div className="flex items-center gap-3">
-              <Briefcase className="w-5 h-5 text-brand-teal" />
-              <div>
-                <p className="font-mono text-xl font-bold text-white">{stats.projects || 0}</p>
-                <p className="text-xs text-text-secondary">Active Projects</p>
-              </div>
-            </div>
+          <Link to="/attendance" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all text-center group">
+            <Clock className="w-8 h-8 text-brand-teal mx-auto mb-2" />
+            <p className="text-sm font-medium text-white group-hover:text-brand-teal transition-colors">Check In/Out</p>
           </Link>
-          <Link to="/tasks" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all group">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-brand-mint" />
-              <div>
-                <p className="font-mono text-xl font-bold text-white">{stats.tasks_pending || 0}</p>
-                <p className="text-xs text-text-secondary">Pending Tasks</p>
-              </div>
-            </div>
+          <Link to="/leaves" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all text-center group">
+            <FileText className="w-8 h-8 text-brand-mint mx-auto mb-2" />
+            <p className="text-sm font-medium text-white group-hover:text-brand-mint transition-colors">Request Leave</p>
           </Link>
-          <Link to="/employees" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all group">
-            <div className="flex items-center gap-3">
-              <Users className="w-5 h-5 text-brand-orange" />
-              <div>
-                <p className="font-mono text-xl font-bold text-white">{stats.employees || 0}</p>
-                <p className="text-xs text-text-secondary">Team Members</p>
-              </div>
-            </div>
+          <Link to="/issues" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all text-center group">
+            <AlertTriangle className="w-8 h-8 text-brand-orange mx-auto mb-2" />
+            <p className="text-sm font-medium text-white group-hover:text-brand-orange transition-colors">Report Issue</p>
           </Link>
-          <Link to="/vault" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all group">
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-purple-400" />
-              <div>
-                <p className="font-mono text-xl font-bold text-white">{stats.vault_folders || 0}</p>
-                <p className="text-xs text-text-secondary">Vault Folders</p>
-              </div>
-            </div>
+          <Link to="/calendar" className="bg-surface border border-white/5 rounded-xl p-4 hover:border-brand-teal/30 transition-all text-center group">
+            <Calendar className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+            <p className="text-sm font-medium text-white group-hover:text-purple-400 transition-colors">View Calendar</p>
           </Link>
         </div>
       </div>
