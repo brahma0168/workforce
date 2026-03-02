@@ -69,17 +69,19 @@ const MainLayout = ({ children }) => {
       <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-surface border-r border-white/5 flex flex-col transition-all duration-300 fixed h-full z-20`}>
         {/* Logo */}
         <div className="p-4 border-b border-white/5">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <img 
-              src="/favicon.png" 
-              alt="Workforce" 
-              className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
-            />
-            {sidebarOpen && (
-              <div className="overflow-hidden">
-                <h1 className="text-lg font-rubik font-black text-white tracking-wide">WORKFORCE</h1>
-                <p className="text-[10px] text-text-secondary tracking-widest">BY PROFITCAST</p>
-              </div>
+          <Link to="/dashboard" className="block">
+            {sidebarOpen ? (
+              <img 
+                src="/logo.png" 
+                alt="Workforce by Profitcast" 
+                className="h-10 object-contain"
+              />
+            ) : (
+              <img 
+                src="/favicon.png" 
+                alt="Workforce" 
+                className="w-10 h-10 rounded-xl object-contain"
+              />
             )}
           </Link>
         </div>
