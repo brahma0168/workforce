@@ -4,7 +4,7 @@ import { useAuth, api } from '../../App';
 import {
   LayoutDashboard, Users, Briefcase, CheckSquare, Shield,
   Bell, AlertTriangle, Calendar, Settings, LogOut, Menu, X,
-  RefreshCw, Wifi, ChevronDown, Clock, FileText
+  RefreshCw, ChevronDown, Clock, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 
