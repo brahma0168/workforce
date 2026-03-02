@@ -70,12 +70,14 @@ const MainLayout = ({ children }) => {
         {/* Logo */}
         <div className="p-4 border-b border-white/5">
           <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-teal to-brand-mint flex items-center justify-center flex-shrink-0">
-              <Wifi className="w-5 h-5 text-black" strokeWidth={2.5} />
-            </div>
+            <img 
+              src="/favicon.png" 
+              alt="Workforce" 
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+            />
             {sidebarOpen && (
               <div className="overflow-hidden">
-                <h1 className="text-lg font-rubik font-bold text-white tracking-tight">SIGNAL</h1>
+                <h1 className="text-lg font-rubik font-bold text-white tracking-tight">WORKFORCE</h1>
                 <p className="text-[10px] text-text-secondary tracking-widest uppercase">BY PROFITCAST</p>
               </div>
             )}
