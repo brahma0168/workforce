@@ -5,7 +5,7 @@ import { useAuth, api } from '../App';
 import { 
   CheckCircle, Clock, AlertTriangle, Heart, BarChart3, 
   ChevronRight, Calendar as CalendarIcon, Users, Briefcase,
-  ArrowUpRight, ArrowDownRight, TrendingUp
+  ArrowUpRight, ArrowDownRight, TrendingUp, Shield
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
