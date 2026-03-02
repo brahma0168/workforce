@@ -68,7 +68,7 @@ const IssuesPage = () => {
   const fetchData = async () => {
     try {
       const [issuesRes, projectsRes, usersRes] = await Promise.all([
-        api.get('/issues'),
+        api.get('/issues/'),
         api.get('/pms/projects'),
         api.get('/users').catch(() => ({ data: [] }))
       ]);
