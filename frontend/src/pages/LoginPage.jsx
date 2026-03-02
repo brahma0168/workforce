@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
-import { Eye, EyeOff, User, Lock, Wifi, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LoginPage = () => {
@@ -52,19 +52,16 @@ const LoginPage = () => {
         <div className="bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl shadow-black/50 p-8">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              {/* Signal Logo */}
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-teal to-brand-mint flex items-center justify-center">
-                <Wifi className="w-8 h-8 text-black" strokeWidth={2.5} />
-              </div>
-              <div className="text-left">
-                <h1 className="text-2xl font-rubik font-bold text-white tracking-tight">SIGNAL</h1>
-                <p className="text-xs text-text-secondary tracking-widest uppercase">BY PROFITCAST</p>
-              </div>
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/logo.png" 
+                alt="Workforce by Profitcast" 
+                className="h-16 object-contain"
+              />
             </div>
             
             <h2 className="text-2xl font-rubik font-bold text-white mb-2">Welcome Back</h2>
-            <p className="text-text-secondary">Sign in to access your Signal dashboard</p>
+            <p className="text-text-secondary">Sign in to access your Workforce dashboard</p>
           </div>
 
           {/* Form */}
@@ -163,7 +160,7 @@ const LoginPage = () => {
             <p className="text-sm text-text-secondary">
               Powered by <span className="text-brand-teal font-medium">Profitcast</span>
             </p>
-            <p className="text-xs text-text-muted mt-1">v2.1 • AI-Powered Analytics</p>
+            <p className="text-xs text-text-muted mt-1">v2.1 • Internal Operations Platform</p>
           </div>
         </div>
       </div>
