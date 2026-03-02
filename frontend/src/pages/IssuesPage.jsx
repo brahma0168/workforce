@@ -85,7 +85,7 @@ const IssuesPage = () => {
   const handleCreateIssue = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/issues', formData);
+      const response = await api.post('/issues/', formData);
       toast.success('Issue created successfully');
       setIssues([response.data, ...issues]);
       setShowAddModal(false);
