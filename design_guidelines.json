@@ -1,0 +1,162 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "The Anti-AI Designer",
+    "principles": [
+      "Fusion over Imitation",
+      "Emotion First",
+      "Content is King",
+      "Zoom In",
+      "Negative Space",
+      "Contrast"
+    ]
+  },
+  "project_context": {
+    "app_name": "Signal by Profitcast",
+    "theme_mode": "dark-only",
+    "target_audience": "Internal Agency Employees (Performance Marketers, HR, Execs)",
+    "mood": "High-Performance, Cyber-Industrial, Command Center, Precision"
+  },
+  "typography": {
+    "fonts": [
+      {
+        "family": "Rubik",
+        "usage": "Headings, Titles, Brand Identity",
+        "weights": ["400", "500", "600", "700", "900"],
+        "fallback": "sans-serif",
+        "import_url": "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;900&display=swap"
+      },
+      {
+        "family": "Inter",
+        "usage": "Body Text, UI Elements, Tooltips",
+        "weights": ["300", "400", "500", "600"],
+        "fallback": "sans-serif",
+        "import_url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      },
+      {
+        "family": "JetBrains Mono",
+        "usage": "Data Tables, Metrics, Code, KPIs",
+        "weights": ["400", "500"],
+        "fallback": "monospace",
+        "import_url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+      }
+    ],
+    "rules": [
+      "Use 'Rubik' for all text-2xl and larger.",
+      "Use 'JetBrains Mono' for financial data, IDs, and dates.",
+      "Use 'Inter' for everything else.",
+      "Headings must use tight tracking (-0.02em or -0.03em).",
+      "Uppercase labels must use wide tracking (0.1em)."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "hex": "#02040A",
+        "hsl": "225 67% 2%",
+        "description": "Deepest Obsidian Blue - Main App Background"
+      },
+      "card": {
+        "hex": "#09090B",
+        "hsl": "240 10% 4%",
+        "description": "Soft Charcoal - Card Backgrounds"
+      },
+      "primary": {
+        "hex": "#00A1C7",
+        "hsl": "191 100% 39%",
+        "description": "Profitcast Teal - Primary Actions, Active States"
+      },
+      "secondary": {
+        "hex": "#00FFAA",
+        "hsl": "160 100% 50%",
+        "description": "Mint Green - Success, Growth Metrics, Accents"
+      },
+      "accent": {
+        "hex": "#FF6826",
+        "hsl": "18 100% 57%",
+        "description": "Signal Orange - Alerts, Warnings, Highlights"
+      },
+      "text_primary": {
+        "hex": "#FFFFFF",
+        "hsl": "0 0% 100%",
+        "description": "High Emphasis Text"
+      },
+      "text_secondary": {
+        "hex": "#A1A1AA",
+        "hsl": "240 5% 65%",
+        "description": "Low Emphasis Text"
+      }
+    },
+    "semantic_mapping": {
+      "success": "secondary",
+      "warning": "accent",
+      "error": "destructive",
+      "info": "primary"
+    }
+  },
+  "layout": {
+    "spacing_scale": "Generous (2x standard)",
+    "border_radius": "0.5rem (8px)",
+    "container_padding": "p-6 or p-8",
+    "grid_system": {
+      "dashboard": "Bento Grid (Grid Cols 1 -> 4 -> 12)",
+      "gap": "gap-6"
+    },
+    "sidebar": {
+      "width": "w-64",
+      "collapsed_width": "w-16",
+      "bg": "bg-card"
+    }
+  },
+  "components": {
+    "cards": {
+      "style": "Flat, No Shadow (or subtle glow), 1px Border",
+      "border": "border-white/5",
+      "hover": "hover:border-primary/50 transition-colors duration-300"
+    },
+    "buttons": {
+      "primary": "bg-primary text-white hover:bg-primary/90 shadow-[0_0_15px_rgba(0,161,199,0.3)]",
+      "secondary": "bg-secondary/10 text-secondary hover:bg-secondary/20 border border-secondary/20",
+      "ghost": "hover:bg-white/5 text-gray-400 hover:text-white"
+    },
+    "inputs": {
+      "bg": "bg-black/20",
+      "border": "border-white/10",
+      "focus": "ring-1 ring-primary border-primary"
+    },
+    "status_badges": {
+      "live": "bg-secondary/10 text-secondary border-secondary/20",
+      "paused": "bg-accent/10 text-accent border-accent/20",
+      "alert": "bg-red-500/10 text-red-500 border-red-500/20"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "Use sparingly on headers. backdrop-blur-xl bg-background/80",
+    "gradients": "Use gradients ONLY for text clips or subtle glows. NO gradient backgrounds for cards.",
+    "borders": "1px solid border-white/5 for definition.",
+    "shadows": "Glow effects instead of drop shadows. shadow-[0_0_20px_rgba(var(--primary),0.15)]"
+  },
+  "assets": {
+    "icons": "Lucide React (Default). Use thin strokes (stroke-width={1.5}) for elegance.",
+    "images": {
+      "logo": "Use text 'SIGNAL' in Rubik Bold if no SVG provided.",
+      "avatars": "Use generic gradients or initials if no user image."
+    }
+  },
+  "instructions_to_main_agent": [
+    "INSTALL FONTS: Add the Google Fonts imports to /app/frontend/public/index.html or /app/frontend/src/index.css immediately.",
+    "CONFIGURE TAILWIND: Update tailwind.config.js to include 'font-rubik', 'font-inter', and 'font-mono' (JetBrains).",
+    "UPDATE CSS VARIABLES: Replace the contents of @layer base in index.css with the HSL values provided in the colors section. FORCE DARK MODE variables to be the default.",
+    "COMPONENT OVERRIDES: When using Shadcn components, override the default 'radius' to 0.5rem and 'border' colors to be subtle.",
+    "STRICT ADHERENCE: Do not use white backgrounds. Everything must be #02040A or #09090B.",
+    "DATA-TESTID: Add data-testid attributes to all interactive elements (buttons, inputs, cards) for testing."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use gradients for main backgrounds, only solid #02040A.",
+    "Use JetBrains Mono for all numbers, prices, and IDs.",
+    "Ensure 'Sign In' button has the glow effect defined in components.buttons.primary.",
+    "Sidebar must be fixed on the left.",
+    "Dashboard cards must use the 'Bento' grid layout.",
+    "Never use 'Inter' for headings. Use Rubik."
+  ]
+}
