@@ -68,13 +68,13 @@ const MainLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-surface border-r border-white/5 flex flex-col transition-all duration-300 fixed h-full z-20`}>
         {/* Logo */}
-        <div className="p-4 border-b border-white/5">
+        <div className="p-5 border-b border-white/5">
           <Link to="/dashboard" className="block">
             {sidebarOpen ? (
               <img 
                 src="/logo.png" 
                 alt="Workforce by Profitcast" 
-                className="h-10 object-contain"
+                className="h-14 object-contain"
               />
             ) : (
               <img 
